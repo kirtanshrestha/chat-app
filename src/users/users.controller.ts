@@ -28,8 +28,18 @@ export class UsersController {
     }
 
     @Get('email/:email')
+    async findByEmailforLogin(@Param('email') email: string): Promise<User> {
+        return this.usersService.findByEmailforLogin(email);
+    }
+
+    @Get('email/:email')
     async findByEmail(@Param('email') email: string): Promise<User> {
         return this.usersService.findByEmail(email);
+    }
+
+    @Get(':username')
+    async finByUsernameforLogin(@Param('username') username: string): Promise<User | object> {
+        return this.usersService.findByUsernameforLogin(username);
     }
 
     @UseGuards(JwtAuthGuard)
