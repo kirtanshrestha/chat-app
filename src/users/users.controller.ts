@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from 'src/auth/dto/create-user.dto';
+import { Room } from 'src/rooms/entities/room.entity';
 
 @Controller('users')
 export class UsersController {
@@ -21,13 +22,18 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Get('me')
+    getProfile(@Req() req) {
+        return this.usersService.findByUsername(req.user.username);
+    }
+
     // Get user by ID
     @Get('id/:id')
     async findOne(@Param('id') id: number): Promise<User> {
         return this.usersService.findById(id);
     }
 
-    @Get('email/:email')
     async findByEmailforLogin(@Param('email') email: string): Promise<User> {
         return this.usersService.findByEmailforLogin(email);
     }
@@ -37,7 +43,6 @@ export class UsersController {
         return this.usersService.findByEmail(email);
     }
 
-    @Get(':username')
     async finByUsernameforLogin(@Param('username') username: string): Promise<User | object> {
         return this.usersService.findByUsernameforLogin(username);
     }

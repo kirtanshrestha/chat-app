@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate, ManyToMany } from 'typeorm';
 import { Message } from '../../messages/entities/message.entity';
 import * as bcrypt from 'bcrypt';
+import { Room } from 'src/rooms/entities/room.entity';
 
 @Entity('users')
 export class User {
@@ -10,7 +11,7 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ unique: true })  // Ensure username is unique
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
@@ -25,9 +26,13 @@ export class User {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isActive: boolean;
 
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[];
+
+  @ManyToMany(() => Room, (room) => room.participants)
+  rooms: Room[];
+
 }

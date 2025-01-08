@@ -1,17 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Room } from 'src/rooms/entities/room.entity';
 
-@Entity()
+@Entity('messages')
 export class Message {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    text: string;
+    content: string;
 
-    @Column()
+    @CreateDateColumn()
     timestamp: Date;
 
     @ManyToOne(() => User, (user) => user.messages)
     sender: User;
+
+    @ManyToOne(() => Room, (room) => room.messages)
+    room: Room;
 }

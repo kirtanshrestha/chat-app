@@ -37,6 +37,7 @@ $ npm install
    $ nest g module users
    $ nest g module messages
    $ nest g module auth
+   $ nest g module rooms
    $ nest g module chat
    ```
 
@@ -64,6 +65,7 @@ $ npm install
     $ nest generate class users/entities/user.entity --no-spec
     $ nest generate class messages/entities/message.entity --no-spec
     $ nest generate class chat/entities/chat-room.entity --no-spec
+    $ nest generate class rooms/entities/room.entity --no-spec
     ```
 
 6. Install websocket support
@@ -71,7 +73,7 @@ $ npm install
   $ npm install @nestjs/websockets @nestjs/platform-socket.io
   ```
 
-7. Add websocket gateway
+1. Add websocket gateway
   ```bash
   nest generate gateway chat
   ```

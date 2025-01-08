@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App Login</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+
+        #loginForm,
+        #chat {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #chat {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #messages {
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loginForm">
+        <h2>Login</h2>
+        <div class="form-group">
+            <label for="email">email</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <div id="chat">
+        <h2>Chat Room</h2>
+        <div id="messages"></div>
+        <label for="messageInput">Message: </label>
+        <input type="text" id="messageInput" placeholder="Type your message">
+        <br><br>
+        <label for="roomId">Select your room Id:</label>
+        <select id="roomId">
+
+        </select>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let socket = null;
+        let rooms;
+
+        // Login function
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const token = data.accessToken; // Extract the token from the response
+                console.log('Token received:', token);
+                const decodedPayload = JSON.parse(atob(token.split('.')[1]));
+
+                const roomFetch = await fetch(`http://localhost:3000/rooms/users/${decodedPayload.id}`, {
+                    method: 'GET'
+                });
+                
+                const rooms = await roomFetch.json();
+                console.log(rooms);
+
+
+
+                const roomSelect = document.getElementById('roomId');
+                rooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id; // Set the value attribute
+                    option.textContent = room.name; // Set the visible text
+                    roomSelect.appendChild(option); // Add the option to the select element
+                });
+                // Store the token securely
+                localStorage.setItem('jwtToken', token);
+
+                // Show the chat UI
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('chat').style.display = 'block';
+
+                // Connect WebSocket with the token
+                connectSocket(token);
+            } else {
+                console.error('Login failed');
+            }
+        }
+
+        // Connect WebSocket function
+        function connectSocket(token) {
+            socket = io('http://localhost:3000', {
+                auth: { token: token },
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket');
+            });
+
+            socket.on('newMessage', (message) => {
+                const messageContainer = document.getElementById('messages');
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.textContent = `${message.senderId}: ${message.content}`;
+                messageContainer.appendChild(messageElement);
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('WebSocket Connection Error:', err.message);
+            });
+        }
+
+        // Send message function
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput').value;
+            const roomId = document.getElementById('roomId').value;
+
+            if (socket && messageInput) {
+                socket.emit('sendMessage', {
+                    content: messageInput,
+                    roomId: roomId,
+                });
+
+                document.getElementById('messageInput').value = ''; // Clear input
+            }
+        }
+
+    </script>
+</body>
+
+</html>

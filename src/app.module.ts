@@ -7,6 +7,10 @@ import { MessagesModule } from './messages/messages.module';
 import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { RoomsModule } from './rooms/rooms.module';
+import { ChatGateway } from './chat/chat.gateway';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 
 @Module({
@@ -22,12 +26,16 @@ import { ConfigModule } from '@nestjs/config';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    UsersModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),  // Serve files from the 'public' directory
+    }),
     MessagesModule,
-    ChatModule,
+    UsersModule,
+
     AuthModule,
+    RoomsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule { }

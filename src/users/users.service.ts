@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from 'src/auth/dto/create-user.dto';
-import { Message } from 'src/messages/entities/message.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +22,7 @@ export class UsersService {
     async findByEmail(email: string): Promise<User | undefined> {
         const user = await this.userRepository.findOne({ where: { email } });
         if (!user)``
-            throw new NotFoundException(`No user with email ${email}`)
+        throw new NotFoundException(`No user with email ${email}`)
         return user;
     }
 
@@ -32,10 +31,9 @@ export class UsersService {
         return user;
     }
 
-
     // Find a user by username
     async findByUsername(username: string): Promise<User | object> {
-        const user = await this.userRepository.findOne({ where: { username } });
+        const user = await this.userRepository.findOne({ where: { username: username }, relations: ['rooms'] });
         if (!user)
             return {
                 msg: `${username} doesnt exist`
@@ -63,10 +61,10 @@ export class UsersService {
         return this.userRepository.find();
     }
 
+    
     async remove(@Req() req, username: string): Promise<object> {
-        console.log(req.username);
         const user = await this.findByUsernameforLogin(username);
         await this.userRepository.remove(user);
-        return { msg: `${username} has been removed.` };
+        return { msg: `${username} has been removed by ${req.user.username}.` };
     }
 }

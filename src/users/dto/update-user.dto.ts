@@ -14,4 +14,7 @@ export class UpdateUserDto {
     @IsString()
     @IsOptional()
     name?: string;
+
+    @IsOptional()
+    isActive?: boolean;
 }

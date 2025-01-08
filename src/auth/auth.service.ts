@@ -41,7 +41,7 @@ export class AuthService {
     async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
         const { email, password } = loginDto;
 
-        const user = await this.usersService.findByEmail(email);
+        const user = await this.usersService.findByEmailforLogin(email);
         if (!user) {
             throw new UnauthorizedException('Invalid email or password');
         }
@@ -53,8 +53,6 @@ export class AuthService {
 
         const payload: JwtPayload = { id: user.id, email: user.email, username: user.username };
         const accessToken = this.jwtService.sign(payload);
-
-
         return { accessToken };
     }
 
