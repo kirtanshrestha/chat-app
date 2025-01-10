@@ -27,11 +27,10 @@ import { join } from 'path';
       synchronize: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),  // Serve files from the 'public' directory
+      rootPath: join(__dirname, '..', 'public'), 
     }),
     MessagesModule,
     UsersModule,
-
     AuthModule,
     RoomsModule,
   ],

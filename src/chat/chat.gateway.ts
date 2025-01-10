@@ -12,7 +12,7 @@ import { UsersService } from 'src/users/users.service';
 import { RoomsService } from 'src/rooms/rooms.service';
 import * as jwt from 'jsonwebtoken';
 
-@WebSocketGateway({ cors: true })  // Enable CORS
+@WebSocketGateway({ cors: true })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
@@ -42,7 +42,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       console.error('Invalid token:', error.message);
       client.disconnect(); // Disconnect the client if the token is inva
     }
-
   }
 
   // Handle WebSocket disconnection

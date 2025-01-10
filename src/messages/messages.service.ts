@@ -10,8 +10,8 @@ export class MessagesService {
         private readonly messageRepository: Repository<Message>,
     ) { }
 
-    async create(content: string, senderId: number, roomId: string): Promise<Message> {
-        const message = this.messageRepository.create({ content, sender: { id: senderId }, room: { id: roomId } });
+    async create(content: string, senderId: number, roomId: string, type?: string): Promise<Message> {
+        const message = this.messageRepository.create({ content, sender: { id: senderId }, room: { id: roomId }, type });
         return this.messageRepository.save(message);
     }
 

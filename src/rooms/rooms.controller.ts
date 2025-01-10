@@ -10,16 +10,30 @@ export class RoomsController {
         private readonly roomsService: RoomsService,
     ) { }
 
+    @UseGuards(JwtAuthGuard)
     @Post()
-    async createRoom(@Body() createRoomDto: CreateRoomDto): Promise<Room> {
-        return this.roomsService.createRoom(createRoomDto);
+    async createRoom(@Req() req, @Body() createRoomDto: CreateRoomDto): Promise<Room> {
+        return this.roomsService.createRoom(req, createRoomDto);
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('chat/:receiver')
+    async createChat(@Req() req, @Param('receiver') receiverId: number): Promise<Room> {
+        return this.roomsService.createChat(req.user.id, receiverId);
+    }
+
 
     @Get(':name')
     async findRoomByName(@Param('name') name: string): Promise<Room> {
         return await this.roomsService.findRoomByName(name);
     }
 
+
+    @UseGuards(JwtAuthGuard)
+    @Get('leave/:id')
+    async leaveRoom(@Req() req, @Param('id') roomId: string) {
+        return await this.roomsService.leaveRoom(req.user.id, roomId);
+    }
     @UseGuards(JwtAuthGuard)
     @Get('join/:id')
     async joinRoom(@Req() req, @Param('id') roomId: string) {

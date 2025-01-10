@@ -30,7 +30,7 @@ export class UsersController {
 
     // Get user by ID
     @Get('id/:id')
-    async findOne(@Param('id') id: number): Promise<User> {
+    async findById(@Param('id') id: number): Promise<User> {
         return this.usersService.findById(id);
     }
 
@@ -51,6 +51,12 @@ export class UsersController {
     @Get(':username')
     async finByUsername(@Param('username') username: string): Promise<User | object> {
         return this.usersService.findByUsername(username);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('payment')
+    async createPayment(@Body('amount') amount:number,@Body('receiver') receiver:string,  @Req() req) {
+        this.usersService.createPayment(amount,receiver,req.user.username);
     }
 
     @Put(':id')

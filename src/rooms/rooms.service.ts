@@ -1,11 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from './entities/room.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Message } from 'src/messages/entities/message.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { partition } from 'rxjs';
+import { UsersService } from 'src/users/users.service';
+
 
 @Injectable()
 export class RoomsService {
@@ -15,21 +15,44 @@ export class RoomsService {
         private readonly roomsRepository: Repository<Room>,
         @InjectRepository(User)
         private readonly usersRepository: Repository<User>,
-        @InjectRepository(Message)
-        private readonly messagesRepository: Repository<Message>,
+        @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
     ) { }
 
-    async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {
-        const { name, type, participants } = createRoomDto;
-        const users = await this.usersRepository.find();
+    async createRoom(@Req() Req, createRoomDto: CreateRoomDto): Promise<Room> {
+        const { name, type } = createRoomDto;
+        const user = await this.usersRepository.find({ where: { id: Req.user.id } });
         const room = this.roomsRepository.create({
             name,
             type,
-            participants: users,
+            participants: user,
         });
         return this.roomsRepository.save(room);
     }
 
+    async createChat(senderId: number, receiverId: number): Promise<Room> {
+        if (senderId === receiverId) {
+            throw new Error("Cannot create a room with yourself.");
+        }
+        const roomquery: Room[] = await this.roomsRepository.find({
+            relations: ['participants'],
+        });
+        roomquery.forEach(room => {
+            if (room.participants.length == 2) {
+                const currentIds = room.participants.map(user => user.id);
+                if (currentIds.includes(senderId) && currentIds.includes(receiverId))
+                    return room;
+            }
+        });
+
+        const newRoom = new Room();
+        newRoom.name = `${senderId}&${receiverId}`;
+        let users = [];
+        users.push(await this.usersService.findById(senderId));
+        users.push(await this.usersService.findById(receiverId));
+        newRoom.participants = users;
+
+        return await this.roomsRepository.save(newRoom);
+    }
     async findRoomByName(roomName: string): Promise<Room> {
         return this.roomsRepository.findOne({
             where: { name: roomName },
@@ -49,7 +72,6 @@ export class RoomsService {
                     rooms.push(temp);
                 }
             });
-            console.log(rooms);
         });
         return rooms;
     }
@@ -75,6 +97,20 @@ export class RoomsService {
         if (room.participants.includes(user))
             throw new ConflictException(`${userId} is already inside room: ${roomId}`);
         room.participants.push(user);
+        return this.roomsRepository.save(room);
+    }
+
+    async leaveRoom(userId: number, roomId: string) {
+
+        var room = await this.findRoomById(roomId);
+        const roomname = room.name;
+        if (room.participants.length == 2) {
+            const user = await this.usersRepository.findOne({ where: { id: userId } });
+            const username = user.name;
+            if (roomname.includes(username))
+                throw new ConflictException(`cannot leave private chats.`);
+        }
+        room.participants = room.participants.filter(participant => participant.id !== userId);
         return this.roomsRepository.save(room);
     }
 }

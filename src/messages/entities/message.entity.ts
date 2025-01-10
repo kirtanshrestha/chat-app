@@ -10,6 +10,9 @@ export class Message {
     @Column()
     content: string;
 
+    @Column({ default: 'text' })
+    type: string;
+
     @CreateDateColumn()
     timestamp: Date;
 

@@ -88,16 +88,19 @@
     </div>
 
     <div id="chat">
-        <h2>Chat Room</h2>
-        <div id="messages"></div>
-        <label for="messageInput">Message: </label>
-        <input type="text" id="messageInput" placeholder="Type your message">
-        <br><br>
-        <label for="roomId">Select your room Id:</label>
-        <select id="roomId">
+        <h1>Chat Room </h1>
+        <h4 id="currentuser">
+            </h5>
 
-        </select>
-        <button onclick="sendMessage()">Send</button>
+            <div id="messages"></div>
+            <label for="messageInput">Message: </label>
+            <input type="text" id="messageInput" placeholder="Type your message">
+            <br><br>
+            <label for="roomId">Select your room Id:</label>
+            <select id="roomId">
+
+            </select>
+            <button onclick="sendMessage()">Send</button>
     </div>
 
     <script>
@@ -121,31 +124,40 @@
                 console.log('Token received:', token);
                 const decodedPayload = JSON.parse(atob(token.split('.')[1]));
 
-                const roomFetch = await fetch(`http://localhost:3000/rooms/users/${decodedPayload.id}`, {
-                    method: 'GET'
-                });
-                
-                const rooms = await roomFetch.json();
-                console.log(rooms);
-
-
-
-                const roomSelect = document.getElementById('roomId');
-                rooms.forEach(room => {
-                    const option = document.createElement('option');
-                    option.value = room.id; // Set the value attribute
-                    option.textContent = room.name; // Set the visible text
-                    roomSelect.appendChild(option); // Add the option to the select element
-                });
-                // Store the token securely
                 localStorage.setItem('jwtToken', token);
 
-                // Show the chat UI
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('chat').style.display = 'block';
+                document.getElementById("currentuser").innerText = `Current User: ${decodedPayload.username}`;
+                //fetching status of user
+                const activeFetch = await fetch(`http://localhost:3000/users/id/${decodedPayload.id}`, {
+                    method: 'GET'
+                });
+                const activeJson = await activeFetch.json();
 
-                // Connect WebSocket with the token
-                connectSocket(token);
+                if (!activeJson.isActive) {
+                    //fetching the available rooms of current users 
+                    const roomFetch = await fetch(`http://localhost:3000/rooms/users/${decodedPayload.id}`, {
+                        method: 'GET'
+                    });
+
+                    const rooms = await roomFetch.json();
+
+                    const roomSelect = document.getElementById('roomId');
+                    rooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.id; // Set the value attribute
+                        option.textContent = room.name; // Set the visible text
+                        roomSelect.appendChild(option); // Add the option to the select element
+                    });
+
+                    // Show the chat UI
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('chat').style.display = 'block';
+
+                    // Connect WebSocket with the token
+                    connectSocket(token);
+                }
+                else
+                    console.log('Login failed. session already exists')
             } else {
                 console.error('Login failed');
             }

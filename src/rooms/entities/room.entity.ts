@@ -10,7 +10,7 @@ export class Room {
     @Column()
     name: string;
 
-    @Column({ default: 'Public' })
+    @Column({ default: 'Private' })
     type: string;
 
     @ManyToMany(() => User, (user) => user.rooms, { cascade: true })

@@ -20,6 +20,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ default: 0 })
+  balance: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
