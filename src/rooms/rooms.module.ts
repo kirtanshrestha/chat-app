@@ -8,7 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Room, User]), 
-  forwardRef(() => UsersModule)],
+  forwardRef(() => UsersModule)], 
   controllers: [RoomsController],
   providers: [RoomsService],
   exports: [RoomsService],

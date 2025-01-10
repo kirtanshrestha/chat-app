@@ -11,6 +11,7 @@ import { RoomsModule } from './rooms/rooms.module';
 import { ChatGateway } from './chat/chat.gateway';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PaymentModule } from './payment/payment.module';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { join } from 'path';
     UsersModule,
     AuthModule,
     RoomsModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],

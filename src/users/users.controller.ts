@@ -55,8 +55,13 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard)
     @Post('payment')
-    async createPayment(@Body('amount') amount:number,@Body('receiver') receiver:string,  @Req() req) {
-        this.usersService.createPayment(amount,receiver,req.user.username);
+    async createPayment(@Body('amount') amount: number, @Body('receiver') receiver: string, @Req() req) {
+        return this.usersService.createPayment(amount, receiver, req.user.username);
+    }
+
+    @Get('updatePayment/:receiver/:amount')
+    async updatePayment(@Param('receiver') receiver: string, @Param('amount') amount: number) {
+        return this.usersService.updatePayment(receiver, amount, 'user1');
     }
 
     @Put(':id')

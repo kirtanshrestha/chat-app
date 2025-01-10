@@ -8,6 +8,7 @@ import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { MessagesService } from 'src/messages/messages.service';
 import { log } from 'console';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
         private readonly userRepository: Repository<User>,
 
 
+        private readonly paymentService: PaymentService,
         private readonly roomsService: RoomsService,
         private readonly messagesService: MessagesService,
     ) { }
@@ -76,6 +78,21 @@ export class UsersService {
         return { msg: `${username} has been removed by ${req.user.username}.` };
     }
 
+    async updatePayment(receiver: string, amount: number, sender: string) {
+        const receiverObj = await this.userRepository.findOne({ where: { username: receiver } })
+        const senderObj = await this.userRepository.findOne({ where: { username: sender } })
+
+        receiverObj.balance = receiverObj.balance + Number(amount);
+
+        this.userRepository.save(receiverObj);
+
+        const room = await this.roomsService.createChat(senderObj.id, receiverObj.id);
+        const content = `${senderObj.name} sent ${receiverObj.name} Rs. ${amount}`;
+        console.log(content);
+        const message = await this.messagesService.create(content, senderObj.id, room.id, 'balance');
+
+        return message.content;
+    }
     async createPayment(@Body('amount') amount: number, @Body('receiver') receiver: string, sender: string) {
 
         const senderObj = await this.userRepository.findOne({ where: { username: sender } })
@@ -84,14 +101,19 @@ export class UsersService {
         const balance = senderObj.balance;
 
         if (amount > balance) {
-            console.log('inssuficent balance');
-            return `insufficient balance: ${balance}`;
+            console.log('inssuficent balance proceding with alternatives');
+            const stripeSession = await this.paymentService.createCheckoutSession(
+                receiverObj.username,
+                amount,
+            )
+            return {
+                message: 'Insufficient balance. Redirecting to Stripe for payment.',
+                checkoutUrl: stripeSession.url,
+            };
         }
         else {
-            receiverObj.balance = receiverObj.balance+ Number(amount);
+            receiverObj.balance = receiverObj.balance + Number(amount);
             senderObj.balance -= amount;
-            console.log(receiverObj.balance);
-            console.log(senderObj.balance);
             this.userRepository.save(receiverObj);
             this.userRepository.save(senderObj);
         }

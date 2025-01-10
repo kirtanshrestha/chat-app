@@ -12,7 +12,7 @@ import { UsersService } from 'src/users/users.service';
 import { RoomsService } from 'src/rooms/rooms.service';
 import * as jwt from 'jsonwebtoken';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ namescors: true })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 

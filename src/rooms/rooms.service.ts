@@ -6,7 +6,6 @@ import { User } from 'src/users/entities/user.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UsersService } from 'src/users/users.service';
 
-
 @Injectable()
 export class RoomsService {
 
@@ -36,16 +35,23 @@ export class RoomsService {
         const roomquery: Room[] = await this.roomsRepository.find({
             relations: ['participants'],
         });
+        let returnRoom = null;
         roomquery.forEach(room => {
             if (room.participants.length == 2) {
                 const currentIds = room.participants.map(user => user.id);
-                if (currentIds.includes(senderId) && currentIds.includes(receiverId))
-                    return room;
+                if (currentIds.includes(senderId) && currentIds.includes(receiverId)) {
+                    returnRoom = room;
+                    return;
+                }
             }
         });
 
+        if (returnRoom)
+            return returnRoom;
+
         const newRoom = new Room();
         newRoom.name = `${senderId}&${receiverId}`;
+        newRoom.type = 'Private';
         let users = [];
         users.push(await this.usersService.findById(senderId));
         users.push(await this.usersService.findById(receiverId));
@@ -53,8 +59,9 @@ export class RoomsService {
 
         return await this.roomsRepository.save(newRoom);
     }
+
     async findRoomByName(roomName: string): Promise<Room> {
-        return this.roomsRepository.findOne({
+        return await this.roomsRepository.findOne({
             where: { name: roomName },
             relations: ['participants', 'messages'],
         });
@@ -88,7 +95,7 @@ export class RoomsService {
     }
 
     async findAll(): Promise<Room[]> {
-        return this.roomsRepository.find();
+        return await this.roomsRepository.find();
     }
 
     async joinRoom(userId: number, roomId: string) {

@@ -22,24 +22,22 @@ export class RoomsController {
         return this.roomsService.createChat(req.user.id, receiverId);
     }
 
-
     @Get(':name')
     async findRoomByName(@Param('name') name: string): Promise<Room> {
         return await this.roomsService.findRoomByName(name);
     }
-
 
     @UseGuards(JwtAuthGuard)
     @Get('leave/:id')
     async leaveRoom(@Req() req, @Param('id') roomId: string) {
         return await this.roomsService.leaveRoom(req.user.id, roomId);
     }
+
     @UseGuards(JwtAuthGuard)
     @Get('join/:id')
     async joinRoom(@Req() req, @Param('id') roomId: string) {
         return await this.roomsService.joinRoom(req.user.id, roomId);
     }
-
 
     @Get('users/:id')
     async findRoomsByUserid(@Param('id') id: number): Promise<Room[]> {
@@ -54,5 +52,4 @@ export class RoomsController {
     async findAll(): Promise<Room[]> {
         return this.roomsService.findAll();
     }
-
 }
