@@ -20,4 +20,7 @@ export class UpdateUserDto {
 
     @IsOptional()
     isEmailVerified?: boolean;
+
+    @IsOptional()
+    otp?: number;
 }

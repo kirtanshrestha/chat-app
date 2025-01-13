@@ -24,4 +24,7 @@ export class CreateUserDto {
 
     @IsOptional()
     isEmailVerified?: boolean;
+
+    @IsOptional()
+    otp?: number;
 }

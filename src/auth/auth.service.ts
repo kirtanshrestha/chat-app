@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import * as jwt from 'jsonwebtoken';
 import { EmailService } from 'src/email/email.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
         private readonly emailService: EmailService
     ) { }
 
-    async register(createUserDto: CreateUserDto): Promise<User> {
+    async register(createUserDto: CreateUserDto) {
         const { email, password, name, username } = createUserDto;
 
         const existingUser = await this.usersService.findByEmailforLogin(email);
@@ -36,11 +37,13 @@ export class AuthService {
         newUser.password = hashedPassword;
         newUser.name = name;
         newUser.username = username;
-
         const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        await this.emailService.sendVerificationEmail(email, token);
 
-        return this.usersService.create(newUser);
+        const user = await this.usersService.create(newUser);
+
+        await this.emailService.sendVerificationEmail(email, token, await this.generateOtp(email));
+
+        return { msg: 'user registered please verify your email' };
     }
 
     async login(loginDto: LoginDto): Promise<{ accessToken?: string, message?: string }> {
@@ -57,8 +60,9 @@ export class AuthService {
         }
 
         if (!user.isEmailVerified) {
+
             const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            await this.emailService.sendVerificationEmail(email, token);
+            await this.emailService.sendVerificationEmail(email, token, await this.generateOtp(email));
 
             return { message: 'Email hasnt been verified yet please check you email for a verification link..' }
         }
@@ -66,7 +70,6 @@ export class AuthService {
         const accessToken = this.jwtService.sign(payload);
         return { accessToken };
     }
-
 
     generateEmailVerificationToken(userId: number, email: string): string {
         const payload = { userId, email };
@@ -92,6 +95,33 @@ export class AuthService {
         await this.usersService.update(user.id, { isEmailVerified: user.isEmailVerified });
 
         return 'Email has now been verified. proceed to login';
+    }
+
+    async verifyOtp(email: string, otp: number): Promise<string> {
+        const user = await this.usersService.findByEmail(email);
+        if (user.isEmailVerified)
+            return 'Email already verified. Please login'
+
+        if (user.otp != otp)
+            throw new Error('invalid or expired otp');
+
+        user.isEmailVerified = true;
+
+        await this.usersService.update(user.id, { isEmailVerified: user.isEmailVerified });
+
+        return 'Email has now been verified. proceed to login';
+
+    }
+
+    async generateOtp(email: string): Promise<number> {
+        const otp = parseInt(crypto.randomInt(0, Math.pow(10, 6)).toString().padStart(6, '0'));
+
+        const user = await this.usersService.findByEmail(email);
+
+        const upd = await this.usersService.update(user.id, { otp: otp });
+        console.log(upd);
+
+        return otp;
     }
     // Validate user from the JWT payload
     async validateUser(userId: number): Promise<User> {

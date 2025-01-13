@@ -15,7 +15,6 @@ export class UsersService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
 
-
         private readonly paymentService: PaymentService,
         private readonly roomsService: RoomsService,
         private readonly messagesService: MessagesService,

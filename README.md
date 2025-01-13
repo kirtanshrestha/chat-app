@@ -89,7 +89,7 @@ $ npm install
   npm install axios
   ```
 
-9. 2FA
+9. 2FA 
   ```bash
   npm install nodemailer
   ```
@@ -97,6 +97,11 @@ $ npm install
   export and import to auth
   sign jwt with email to generate token
 
+10. OTP
+    ```bash
+    npm install otp-generator
+    ```
+    
 
 
 ## Compile and run the project

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/users/entities/user.entity';
-
+import * as crypto from 'crypto';
 @Injectable()
 export class EmailService {
     private transporter: nodemailer.Transporter;
@@ -18,15 +17,17 @@ export class EmailService {
         });
     }
 
-    async sendVerificationEmail(to: string, token: string) {
+    async sendVerificationEmail(to: string, token: string, otp:number) {
         const verificationUrl = `http://localhost:3000/auth/verify-email?token=${token}`
 
+        console.log(otp);
         const mailOptions = {
             from: process.env.EMAIL_USERNAME,  // Set your email address here
             to,
             subject: 'Email Verification',
             text: `Please verify your email by clicking the following link: ${verificationUrl}`,
-            html: `<p>Please verify your email by clicking the following link:</p><a href="${verificationUrl}">${verificationUrl}</a>`,
+            html: `<p>Please verify your email by clicking the following link:</p><a href="${verificationUrl}">${verificationUrl}
+           </a> <p> Or enter the otp: ${otp} </p>`,
         };
 
         await this.transporter.sendMail(mailOptions);
