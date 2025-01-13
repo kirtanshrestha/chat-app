@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Post } from '@nestjs/common';
 import Stripe from 'stripe';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
     private stripe: Stripe;
+
+    private readonly khaltiSecretKey = process.env.KhaltiSecretKey // Your Khalti Secret Key
+    private readonly khaltiPublicKey = process.env.KhaltiPublicKey; // Your Khalti Public Key
+    private readonly khaltiUrl = 'https://a.khalti.com/api/v2/epayment/initiate/'; // Khalti's checkout API
 
     constructor() {
         this.stripe = new Stripe(process.env.STRIPE_SECRET, {
@@ -11,10 +16,40 @@ export class PaymentService {
         });
     }
 
-    /**
-     * Create a Checkout Session
-     * @param priceId The Price ID of the product (configured in Stripe Dashboard)
-     */
+    //esewa
+
+    //khalti
+    async createPaymentSession(amount: number, receiver: string) {
+        const mobile = '9841234567';
+
+        let payload = {
+            website_url: "http://localhost:3000/",
+            amount: amount * 100,
+            mobile: mobile,
+            purchase_order_id: receiver, // Product or service identifier
+            purchase_order_name: 'Product Name', // Product Name
+            return_url: `http://localhost:3000/users/updatePayment/${receiver}/${amount}/balance-khalti`, // Success callback URL
+        };
+
+        try {
+            // Call Khalti API to create a payment session
+            const response = await axios.post(this.khaltiUrl, JSON.stringify(payload), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `key ${this.khaltiSecretKey}`,
+                },
+            });
+            // Return the URL for the user to make the payment
+            return response.data;
+        } catch (error) {
+            console.error('Khalti API Error:', error.response?.data || error.message);
+            throw new Error('Error creating Khalti session');
+        }
+    }
+
+
+    //stripe
     async createCheckoutSession(receiver: string, amount: number): Promise<Stripe.Checkout.Session> {
         return this.stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -31,7 +66,7 @@ export class PaymentService {
                 },
             ],
             mode: 'payment',
-            success_url: `http://localhost:3000/users/updatePayment/${receiver}/${amount}`,
+            success_url: `http://localhost:3000/users/updatePayment/${receiver}/${amount}/balance-stripe`,
             cancel_url: 'http://localhost:3000/cancel',
         });
     }

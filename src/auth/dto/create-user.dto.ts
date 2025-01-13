@@ -19,5 +19,9 @@ export class CreateUserDto {
 
     @IsNumber()
     @IsOptional()
-    balance:number;
+    balance: number;
+
+
+    @IsOptional()
+    isEmailVerified?: boolean;
 }

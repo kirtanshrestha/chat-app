@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Put, Body, UseGuards, Patch, Post, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Param, Put, Body, UseGuards, Patch, Post, Delete, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -15,6 +15,8 @@ export class UsersController {
     async create(@Body() createUserDto: CreateUserDto): Promise<User> {
         return this.usersService.create(createUserDto);
     }
+
+
 
     @UseGuards(JwtAuthGuard)
     @Get()
@@ -59,9 +61,10 @@ export class UsersController {
         return this.usersService.createPayment(amount, receiver, req.user.username);
     }
 
-    @Get('updatePayment/:receiver/:amount')
-    async updatePayment(@Param('receiver') receiver: string, @Param('amount') amount: number) {
-        return this.usersService.updatePayment(receiver, amount, 'user1');
+    @Get('updatePayment/:receiver/:amount/:mode')
+    async updatePayment(@Res() res, @Req() req, @Param('receiver') receiver: string, @Param('amount') amount: number, @Param('mode') mode: string) {
+        this.usersService.updatePayment(receiver, amount, req.user.username, mode);
+        return res.redirect('http://localhost:3000');
     }
 
     @Put(':id')

@@ -8,9 +8,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
+    EmailModule,
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule, // Import UsersModule to interact with users
     JwtModule.register({

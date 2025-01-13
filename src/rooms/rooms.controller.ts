@@ -22,6 +22,8 @@ export class RoomsController {
         return this.roomsService.createChat(req.user.id, receiverId);
     }
 
+ 
+
     @Get(':name')
     async findRoomByName(@Param('name') name: string): Promise<Room> {
         return await this.roomsService.findRoomByName(name);

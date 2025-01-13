@@ -73,10 +73,29 @@ $ npm install
   $ npm install @nestjs/websockets @nestjs/platform-socket.io
   ```
 
-1. Add websocket gateway
+7. Add websocket gateway
   ```bash
   nest generate gateway chat
   ```
+8. Payment integration
+  update keys in env file
+  Generate required paymentmodule files
+  [forStripe]
+  ```bash
+  npm install stripe
+  ```
+  [forKhalti]
+  ```bash
+  npm install axios
+  ```
+
+9. 2FA
+  ```bash
+  npm install nodemailer
+  ```
+  nest g module/service email
+  export and import to auth
+  sign jwt with email to generate token
 
 
 
