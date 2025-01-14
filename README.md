@@ -36,6 +36,7 @@
 - **User Management**: Create, update, and manage users with custom validation and DTOs.
 - **Message History**: Messages are saved and broadcasted across rooms in real-time.
 - **Swagger API Documentation**: Auto-generated Swagger documentation for easy API interaction.
+- **Payment Integration**: Users have wallet/ balance which can be transfered with Stripe and khalti integration.
 
 ## Technologies
 
