@@ -24,7 +24,26 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# Chat-App - Real-Time Chat Application with NestJS and WebSockets
+
+**Chat-App** is a real-time chat application built using **NestJS**, **WebSockets**, and **JWT authentication**. This application provides features such as user registration, authentication, real-time messaging, and dynamic chat room management.
+
+## Features
+
+- **JWT-based Authentication**: Secure login and user authentication with JWT tokens.
+- **Real-Time Messaging**: Uses WebSockets and Socket.IO for real-time communication between users.
+- **Dynamic Chat Rooms**: Users can join and interact in dynamic chat rooms.
+- **User Management**: Create, update, and manage users with custom validation and DTOs.
+- **Message History**: Messages are saved and broadcasted across rooms in real-time.
+- **Swagger API Documentation**: Auto-generated Swagger documentation for easy API interaction.
+
+## Technologies
+
+- **NestJS**: A framework for building efficient and scalable server-side applications.
+- **Socket.IO & WebSockets**: Real-time communication for instant messaging.
+- **JWT**: Authentication via JSON Web Tokens for secure API access and WebSocket connections.
+- **PostgreSQL**: Used for storing user data (and potentially chat history).
+- **Swagger**: For easy-to-use, interactive API documentation.
 
 ## Project setup
 
