@@ -102,6 +102,10 @@ $ npm install
     npm install otp-generator
     ```
     
+11. Swagger documentation
+    ```bash
+    npm install @nestjs/swagger swagger-ui-express
+    ```
 
 
 ## Compile and run the project

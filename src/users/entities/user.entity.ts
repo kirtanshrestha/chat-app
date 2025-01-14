@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert, BeforeUpdate, ManyToMany } from 'typeorm';
 import { Message } from '../../messages/entities/message.entity';
-import * as bcrypt from 'bcrypt';
 import { Room } from 'src/rooms/entities/room.entity';
 
 @Entity('users')
@@ -17,7 +16,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({default:null})
+  @Column({ default: null })
   otp?: number;
 
   @Column({ default: false })

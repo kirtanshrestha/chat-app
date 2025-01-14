@@ -1,4 +1,4 @@
-import { Injectable, Post } from '@nestjs/common';
+import { Injectable, Post, Req } from '@nestjs/common';
 import Stripe from 'stripe';
 import axios from 'axios';
 
@@ -19,7 +19,7 @@ export class PaymentService {
     //esewa
 
     //khalti
-    async createPaymentSession(amount: number, receiver: string) {
+    async createPaymentSession(sender: string, amount: number, receiver: string) {
         const mobile = '9841234567';
 
         let payload = {
@@ -28,7 +28,8 @@ export class PaymentService {
             mobile: mobile,
             purchase_order_id: receiver, // Product or service identifier
             purchase_order_name: 'Product Name', // Product Name
-            return_url: `http://localhost:3000/users/updatePayment/${receiver}/${amount}/balance-khalti`, // Success callback URL
+            return_url: `http://localhost:3000/users/updatePayment/${sender}/${receiver}/${amount}/balance-khalti`,
+            //  // Success callback URL
         };
 
         try {
@@ -50,7 +51,7 @@ export class PaymentService {
 
 
     //stripe
-    async createCheckoutSession(receiver: string, amount: number): Promise<Stripe.Checkout.Session> {
+    async createCheckoutSession(sender: string, receiver: string, amount: number): Promise<Stripe.Checkout.Session> {
         return this.stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -66,7 +67,7 @@ export class PaymentService {
                 },
             ],
             mode: 'payment',
-            success_url: `http://localhost:3000/users/updatePayment/${receiver}/${amount}/balance-stripe`,
+            success_url: `http://localhost:3000/users/updatePayment/${sender}/${receiver}/${amount}/balance-stripe`,
             cancel_url: 'http://localhost:3000/cancel',
         });
     }

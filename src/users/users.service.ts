@@ -7,6 +7,7 @@ import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { MessagesService } from 'src/messages/messages.service';
 import { PaymentService } from 'src/payment/payment.service';
+import { throws } from 'assert';
 
 @Injectable()
 export class UsersService {
@@ -39,12 +40,10 @@ export class UsersService {
     }
 
     // Find a user by username
-    async findByUsername(username: string): Promise<User | object> {
+    async findByUsername(username: string): Promise<User> {
         const user = await this.userRepository.findOne({ where: { username: username }, relations: ['rooms'] });
         if (!user)
-            return {
-                msg: `${username} doesnt exist`
-            };
+            throw new NotFoundException('No such user exists')
         return user;
     }
 
@@ -99,7 +98,7 @@ export class UsersService {
     async createPayment(@Body('amount') amount: number, @Body('receiver') receiver: string, sender: string) {
 
         const senderObj = await this.userRepository.findOne({ where: { username: sender } })
-        const receiverObj = await this.userRepository.findOne({ where: { username: receiver } })
+        const receiverObj = await this.findByUsername(receiver);
 
         const balance = senderObj.balance;
         const rand = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
@@ -108,7 +107,7 @@ export class UsersService {
             console.log('inssuficent balance proceding with alternatives');
             if (rand % 2 == 0) {
                 //stripe
-                const stripeSession = await this.paymentService.createCheckoutSession(
+                const stripeSession = await this.paymentService.createCheckoutSession(sender,
                     receiverObj.username,
                     amount,
                 );
@@ -120,7 +119,7 @@ export class UsersService {
             //khalti
             else {
 
-                const khaltiSession = await this.paymentService.createPaymentSession(amount, receiverObj.username);
+                const khaltiSession = await this.paymentService.createPaymentSession(sender, amount, receiverObj.username);
                 return {
                     message: 'insufficient balance. redirecting to khalti',
                     checkoutUrl: khaltiSession.payment_url,

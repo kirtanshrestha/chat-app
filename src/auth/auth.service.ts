@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,7 +13,7 @@ import * as crypto from 'crypto';
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly usersService: UsersService,
+        @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
         private readonly emailService: EmailService
     ) { }
@@ -103,7 +103,7 @@ export class AuthService {
             return 'Email already verified. Please login'
 
         if (user.otp != otp)
-            throw new Error('invalid or expired otp');
+            return 'invalid or expired otp';
 
         user.isEmailVerified = true;
 
@@ -118,8 +118,7 @@ export class AuthService {
 
         const user = await this.usersService.findByEmail(email);
 
-        const upd = await this.usersService.update(user.id, { otp: otp });
-        console.log(upd);
+        await this.usersService.update(user.id, { otp: otp });
 
         return otp;
     }

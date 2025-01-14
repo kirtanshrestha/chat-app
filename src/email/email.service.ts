@@ -19,8 +19,6 @@ export class EmailService {
 
     async sendVerificationEmail(to: string, token: string, otp:number) {
         const verificationUrl = `http://localhost:3000/auth/verify-email?token=${token}`
-
-        console.log(otp);
         const mailOptions = {
             from: process.env.EMAIL_USERNAME,  // Set your email address here
             to,

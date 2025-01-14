@@ -29,7 +29,7 @@ export class RoomsService {
     }
 
     async createChat(senderId: number, receiverId: number): Promise<Room> {
-        if (senderId === receiverId) {
+        if (senderId == receiverId) {
             throw new Error("Cannot create a room with yourself.");
         }
         const roomquery: Room[] = await this.roomsRepository.find({
