@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Room } from 'src/rooms/entities/room.entity';
+import { User } from '../../users/entities/user.entity';
+import { Room } from '../../rooms/entities/room.entity';
 
 @Entity('messages')
 export class Message {

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Message } from 'src/messages/entities/message.entity';
+import { User } from '../../users/entities/user.entity';
+import { Message } from '../../messages/entities/message.entity';
 
 @Entity('Rooms')
 export class Room {

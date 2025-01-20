@@ -127,6 +127,16 @@ $ npm install
     npm install @nestjs/swagger swagger-ui-express
     ```
 
+12. Migration during production --USE RELATIVE PATHHHH (../../user/)
+    ```bash
+    npm install typeorm ts-node tsconfig-paths
+    ```
+    - set synchronization false
+    - setup data-source.ts inside src with correct path for entites and migrations
+    - generate migration: npx typeorm-ts-node-commonjs migration:generate ./src/migrations/foreignKeyJoin -d ./src/data-source.ts 
+    - run migration: npx typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts 
+
+
 
 ## Compile and run the project
 

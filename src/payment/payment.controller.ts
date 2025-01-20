@@ -26,18 +26,21 @@ export class PaymentController {
         return session;
         // return res.redirect(session.checkoutUrl);
     }
-
+    
     /**Stripe
      * Create a Checkout Session
      * @param priceId The Price ID of the product
-     */
+    */
     @Post('Stripe')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a Stripe checkout session' })
     @ApiBody({ schema: { type: 'object', properties: { amount: { type: 'number' }, receiver: { type: 'string' } } } })
     @ApiResponse({ status: 201, description: 'Checkout session created successfully.' })
     @ApiResponse({ status: 400, description: 'Invalid input.' })
     async createCheckoutSession(@Req() req, @Body('receiver') receiver: string,
         @Body('amount') amount: number) {
+        console.log('heres the req.user', req);
         const session = await this.paymentService.createCheckoutSession(req.user.username, receiver, amount);
         return { id: session.id, url: session.url };
         // return res.redirect(session.url);

@@ -22,7 +22,7 @@ export class RoomsController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get('chat/:receiver')
+    @Get('chat/id/:receiver')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create private chat between other user.' })
     @ApiResponse({ status: 200, description: 'Room successfuly created/fetched', type: Room })
@@ -30,6 +30,17 @@ export class RoomsController {
     @ApiParam({ name: 'receiver', description: 'The ID of the receiving user', example: 1 })
     async createChat(@Req() req, @Param('receiver') receiverId: number): Promise<Room> {
         return this.roomsService.createChat(req.user.id, receiverId);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('chat/:username')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Create private chat between other user.' })
+    @ApiResponse({ status: 200, description: 'Room successfuly created/fetched', type: Room })
+    @ApiResponse({ status: 401 })
+    @ApiParam({ name: 'username', description: 'The username of the receiving user', example: 'kirtan_work' })
+    async createChatUsername(@Req() req, @Param('username') username: string): Promise<Room> {
+        return this.roomsService.createChatUsername(req.user.id, username);
     }
 
 

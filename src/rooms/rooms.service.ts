@@ -60,6 +60,40 @@ export class RoomsService {
         return await this.roomsRepository.save(newRoom);
     }
 
+    async createChatUsername(senderId: number, receiverUser: string): Promise<Room> {
+        const receiver = await this.usersService.findByUsername(receiverUser);
+        const receiverId = receiver.id;
+        if (senderId == receiverId) {
+            throw new Error("Cannot create a room with yourself.");
+        }
+        const roomquery: Room[] = await this.roomsRepository.find({
+            relations: ['participants'],
+        });
+        let returnRoom = null;
+        roomquery.forEach(room => {
+            if (room.participants.length == 2) {
+                const currentIds = room.participants.map(user => user.id);
+                if (currentIds.includes(senderId) && currentIds.includes(receiverId)) {
+                    returnRoom = room;
+                    return;
+                }
+            }
+        });
+
+        if (returnRoom)
+            return returnRoom;
+
+        const newRoom = new Room();
+        newRoom.name = `${senderId}&${receiverId}`;
+        newRoom.type = 'Private';
+        let users = [];
+        users.push(await this.usersService.findById(senderId));
+        users.push(await this.usersService.findById(receiverId));
+        newRoom.participants = users;
+
+        return await this.roomsRepository.save(newRoom);
+    }
+
     async findRoomByName(roomName: string): Promise<Room> {
         return await this.roomsRepository.findOne({
             where: { name: roomName },
