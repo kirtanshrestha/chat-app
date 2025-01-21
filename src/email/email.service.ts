@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
+
 @Injectable()
 export class EmailService {
     private transporter: nodemailer.Transporter;

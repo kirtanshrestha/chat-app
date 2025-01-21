@@ -16,8 +16,6 @@ export class PaymentService {
         });
     }
 
-    //esewa
-
     //khalti
     async createPaymentSession(sender: string, amount: number, receiver: string) {
         const mobile = '9841234567';

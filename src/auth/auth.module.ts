@@ -7,7 +7,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { EmailModule } from 'src/email/email.module';
 
 @Module({
