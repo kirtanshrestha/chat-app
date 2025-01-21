@@ -7,7 +7,7 @@ import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { MessagesService } from 'src/messages/messages.service';
 import { PaymentService } from 'src/payment/payment.service';
-import { throws } from 'assert';
+
 
 @Injectable()
 export class UsersService {
@@ -93,7 +93,6 @@ export class UsersService {
         console.log(message);
         return message.content;
     }
-
 
     async createPayment(@Body('amount') amount: number, @Body('receiver') receiver: string, sender: string) {
 
